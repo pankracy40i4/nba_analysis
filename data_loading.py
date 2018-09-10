@@ -4,7 +4,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from utils.timer import timed
-from config import FILES_PATH, track_file_name, odd_file_name, boxscores_file_name
+from config import FILES_PATH
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -189,8 +189,6 @@ def team_features(match_data, window):
     df_hist_away = df_hist.loc[df_hist.HOME == 0].sort_values('GAME_ID')
 
     df_out = df_hist_home.merge(df_hist_away, on=['GAME_ID', 'tot'], suffixes=('_home', '_away'))
-
-
 
     return df_out
 
