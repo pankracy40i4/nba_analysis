@@ -59,7 +59,6 @@ def main():
     df_out = team_features(match_data, window)
 
     df = df_out.merge(odds, on='GAME_ID')
-
     train = df.loc[df.GAME_ID < 21600001].dropna()
 
     test = df.loc[(df.GAME_ID > 21600001)]

@@ -176,18 +176,20 @@ def team_features(match_data, window):
 
         # opponent = opponent_.set_index(opponent_.GAME_ID)[cols].rolling(window).mean().shift(1).\
             # rename(columns=lambda x: x + '_opp').reset_index()
-        opponent = opponent_.set_index(opponent_.GAME_ID)[cols].rename(columns=lambda x: x + '_opp').reset_index()
+        opponent = opponent_.set_index(opponent_.GAME_ID)[cols + ['TEAM']].rename(columns=lambda x: x + '_opp').reset_index()
+
 
         g_hist = g[cols]#.rolling(window).mean().shift(1)
         g_hist['GAME_ID'] = g['GAME_ID']
         g_hist['HOME'] = g['HOME']
         g_hist['tot'] = g['tot']
+        g_hist['TEAM'] = _
         result.append(g_hist.merge(opponent, on='GAME_ID'))
 
     df_hist = pd.concat(result)
     df_hist_home = df_hist.loc[df_hist.HOME == 1].sort_values('GAME_ID')
     df_hist_away = df_hist.loc[df_hist.HOME == 0].sort_values('GAME_ID')
-
+    df_hist.to_csv('teams.csv')
     df_out = df_hist_home.merge(df_hist_away, on=['GAME_ID', 'tot'], suffixes=('_home', '_away'))
 
     return df_out
