@@ -1,4 +1,4 @@
-This is the initail repo to look and analyse nba spread data. To install the package pleas run:
+This is a repository to analyse NBA game data. 
 ```
-conda env create -n yourenv -f requirements.txt
+pip install -r requiremnets.txt
 ```
