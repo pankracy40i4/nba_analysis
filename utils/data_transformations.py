@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from utils.timer import timed
-from utils.utils_functions import all_possible_pairs
+from utils.utils_functions import all_possible_pairs, get_df_negative_examples
 from config import FILES_PATH
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def plot_grouped(grouped, column='FT_PTS'):
 
     plt.xlabel(column)
     plt.ylabel('density')
-    plt.show()
+    plt.savefig('fif.png')
 
 
 def data_scores_analysis(df):
@@ -71,7 +71,10 @@ def data_scores_analysis(df):
 
 
 @timed(logger)
-def data_transofrmation_for_model(df):
+def data_transofrmation_for_model(df, cols):
+
+    # TODO format this code into sth digestable
+
     col_groupby = ['TEAM', 'TEAM_opp', 'season']
     grouped = df.groupby(col_groupby)
     left = []
@@ -90,8 +93,7 @@ def data_transofrmation_for_model(df):
         g = g_.copy().reset_index(drop=True)
         combinations = all_possible_pairs(indexes)
         n_comb = len(combinations)
-        df_counter_examples_right = df.loc[
-            ((-df.TEAM.isin(this_teams)) | (-df.TEAM_opp.isin(this_teams))) & (df.season == season)].sample(n_comb)
+        df_counter_examples_right = get_df_negative_examples(df, this_teams, season, n_comb)
         df_counter_examples_left = g.sample(n_comb, replace=True).reset_index(drop=True)
 
         counter = 0
@@ -109,6 +111,7 @@ def data_transofrmation_for_model(df):
                            'team_right': df_counter_examples_right.iloc[counter].TEAM,
                            'team_opp_right': df_counter_examples_right.iloc[counter].TEAM_opp, 'season': season,
                            'label': 0})
-            #### False examples ####
 
             counter += 1
+
+    return left, right, label, pd.DataFrame.from_records(df_out)

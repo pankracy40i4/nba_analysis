@@ -54,9 +54,9 @@ class SiameaseNetwork():
         right_input = Input(self.input_shape)
 
         encoder = Sequential()
-        encoder = self.dense_block(encoder, 128)
-        encoder = self.dense_block(encoder, 64)
-        encoder.add(Dense(16))
+        encoder = self.dense_block(encoder, 32)
+        encoder = self.dense_block(encoder, 16)
+        encoder.add(Dense(8))
 
         encoded_l = encoder(left_input)
         encoded_r = encoder(right_input)
@@ -82,14 +82,13 @@ class SiameaseNetwork():
         :return:
         """
 
-        assert (left.shape[1] == right.shape[1] == self.input_shape[0]), "Inputs are not compatible with model"
+        # assert (left.shape[1] == right.shape[1] == self.input_shape[0]), "Inputs are not compatible with model"
+        #
+        # assert (left.shape[0] == right.shape[0] == label.shape[0]), "Inputs of various shapes"
 
-        assert (left.shape[0] == right.shape[0] == label.shape[0]), "Inputs of various shapes"
+        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=20, verbose=0, mode='auto')
 
-        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=20, verbose=0, mode='auto',
-                                       baseline=None, restore_best_weights=True)
-
-        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.0001)
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=10, min_lr=0.0001)
 
         csv_logger = CSVLogger(MODELS_PATH + 'training.log')
 
@@ -110,4 +109,17 @@ class SiameaseNetwork():
 
         model_name = MODELS_PATH + name + '.h5'
         self.model.save(model_name)
+
+    def evaluate(self, left, right, label):
+        """
+        Evaluates the model.
+
+        :param left: array, input data
+        :param right: array, input data
+        :param label: labels
+        :return:
+        """
+
+        self.model.evaluate(x=[left, right], y=label, batch_size=self.batch_size)
+
 
