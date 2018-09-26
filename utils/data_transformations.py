@@ -77,10 +77,8 @@ def data_transofrmation_for_model(df, cols):
 
     col_groupby = ['TEAM', 'TEAM_opp', 'season']
     grouped = df.groupby(col_groupby)
-    left = []
-    right = []
-    label = []
-    df_out = []
+    left = right = label = df_out = []
+
     for info, g_ in grouped:
         indexes = list(range(g_.shape[0]))
         team = info[0]
