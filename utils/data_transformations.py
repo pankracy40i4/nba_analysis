@@ -72,30 +72,38 @@ def data_scores_analysis(df):
 
 @timed(logger)
 def data_transofrmation_for_model(df, cols):
+    """
+    From given data frame of games, this function prepares the training set for the Siamease Network. It creates a
+    balanced set (50% positive / 50% negative) of game pairs, where positive examples are 2 games played by the same
+    teams in the same season. Negative examples are 2 games played by different 4 teams in the same season.
 
-    # TODO format this code into sth digestable
-
+    :param df: DF, data frame with games
+    :param cols: list, columns used as features in the model
+    :return:
+    """
     col_groupby = ['TEAM', 'TEAM_opp', 'season']
     grouped = df.groupby(col_groupby)
-    left = right = label = df_out = []
+    left, right, label, df_out = ([] for i in range(4))
 
-    for info, g_ in grouped:
-        indexes = list(range(g_.shape[0]))
-        team = info[0]
-        team_opp = info[1]
-        season = info[2]
-        this_teams = [team, team_opp]
-        if len(indexes) < 2:
-            continue
+    for (team, team_opp, season), g_ in grouped:
 
         g = g_.copy().reset_index(drop=True)
+        indexes = list(range(g_.shape[0]))
+        this_teams = [team, team_opp]
+
+        if len(indexes) < 2:
+            # not enough obs to create training pairs
+            continue
+
         combinations = all_possible_pairs(indexes)
         n_comb = len(combinations)
+
         df_counter_examples_right = get_df_negative_examples(df, this_teams, season, n_comb)
         df_counter_examples_left = g.sample(n_comb, replace=True).reset_index(drop=True)
 
         counter = 0
         for pair in combinations:
+
             left.append(g.iloc[pair[0]][cols])
             right.append(g.iloc[pair[1]][cols])
             label.append(1)

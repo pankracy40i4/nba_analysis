@@ -25,7 +25,7 @@ def main():
     model = SiameaseNetwork(len(cols), dropout=0.15)
     model.fit(left, right, label=label)
 
-    model.model.evaluate([test_left, test_right], test_label)
+    model.evaluate(test_left, test_right, test_label)
 
 
 
