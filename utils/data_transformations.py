@@ -3,6 +3,7 @@ import warnings
 import pandas as pd
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+from sklearn.externals.joblib import Parallel, delayed
 import matplotlib.pyplot as plt
 from utils.timer import timed
 from utils.utils_functions import all_possible_pairs, get_df_negative_examples
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_data():
-    data = pd.read_csv(FILES_PATH + 'teams.csv', sep=';')
+    data = pd.read_csv(FILES_PATH + 'teams.csv', sep=',')
     data['season'] = (data.GAME_ID / 100000).map(int)
 
     return data
@@ -121,3 +122,4 @@ def data_transofrmation_for_model(df, cols):
             counter += 1
 
     return left, right, label, pd.DataFrame.from_records(df_out)
+
